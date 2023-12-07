@@ -1,0 +1,108 @@
+use std::collections::HashSet;
+
+use crate::{block::Block, expression::Label, statement::Statement};
+
+pub fn init_label(stmt: &Statement) -> Label {
+    use crate::statement::Statement::*;
+    match stmt {
+        Atom(block) => block.get_label(),
+
+        Composition(stmt1, _) => init_label(stmt1),
+
+        IfThenElse(test, _, _) => test.label,
+
+        While(test, _) => test.label,
+    }
+}
+
+pub fn final_labels(stmt: &Statement) -> HashSet<Label> {
+    use crate::statement::Statement::*;
+    match stmt {
+        Atom(block) => [block.get_label()].into(),
+
+        Composition(_, stmt2) => final_labels(stmt2),
+
+        IfThenElse(_, _, stmt2) => final_labels(stmt2)
+            .union(&final_labels(stmt2))
+            .cloned()
+            .collect(),
+
+        While(test, _) => [test.label].into(),
+    }
+}
+
+pub fn blocks<'a>(stmt: &'a Statement) -> HashSet<Block<'a>> {
+    use crate::statement::Statement::*;
+    match stmt {
+        // pad with empty sets so that all match arms have the return type [HashSet<(Label, Label)>; 3]
+        Atom(block) => [[block.clone()].into(), HashSet::new(), HashSet::new()],
+
+        Composition(stmt1, stmt2) => [blocks(stmt1), blocks(stmt2), HashSet::new()],
+
+        IfThenElse(test, stmt1, stmt2) => [
+            [Block::Test(test.clone())].into(),
+            blocks(stmt1),
+            blocks(stmt2),
+        ],
+
+        While(test, stmt1) => [
+            [Block::Test(test.clone())].into(),
+            blocks(stmt1),
+            HashSet::new(),
+        ],
+    }
+    .iter()
+    .flatten()
+    .cloned()
+    .collect()
+}
+
+pub fn flow(stmt: &Statement) -> HashSet<(Label, Label)> {
+    use crate::statement::Statement::*;
+    match stmt {
+        // pad with empty sets so that all match arms have the return type [HashSet<(Label, Label)>; 3]
+        Atom(_) => [HashSet::new(), HashSet::new(), HashSet::new()],
+
+        Composition(stmt1, stmt2) => [
+            // flow(S1) U flow(S2) ...
+            flow(stmt1),
+            flow(stmt2),
+            // ... U {(l, init(S2)) | l in final(S1)}
+            final_labels(stmt1)
+                .iter()
+                .map(|stmt1_final| (stmt1_final.clone(), init_label(stmt2)))
+                .collect(),
+        ],
+
+        IfThenElse(test, stmt1, stmt2) => [
+            // flow(S1) U flow(S2) ...
+            flow(&stmt1),
+            flow(&stmt2),
+            // ... U {(l, init(S1)), (l, init(S2))}
+            HashSet::from([
+                (test.label, init_label(stmt1)),
+                (test.label, init_label(stmt2)),
+            ]),
+        ],
+
+        While(test, stmt1) => [
+            // flow(S1) ...
+            flow(stmt1),
+            // ... U {(l, init(S))} ...
+            [(test.label, init_label(stmt1))].into(),
+            // ... U {(l, init(S2)) | l in final(S1)}
+            final_labels(stmt1)
+                .iter()
+                .map(|stmt1_final| (stmt1_final.clone(), test.label))
+                .collect(),
+        ],
+    }
+    .iter()
+    .flatten()
+    .cloned()
+    .collect()
+}
+
+pub fn flow_r(stmt: &Statement) -> HashSet<(Label, Label)> {
+    flow(stmt).iter().map(|x| (x.1, x.0)).collect()
+}
