@@ -1,3 +1,4 @@
+mod analysis;
 mod block;
 mod expression;
 mod functions;

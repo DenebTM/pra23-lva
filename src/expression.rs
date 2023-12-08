@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use std::fmt::Display;
+use std::{collections::HashSet, fmt::Display};
 
 pub type Label = i32; // label index
 pub type Variable = u8; // variable index
@@ -17,6 +17,19 @@ pub enum AExp<'a> {
     // + - * /; operator is irrelevant
     ArithmeticOp(&'a AExp<'a>, &'a str, &'a AExp<'a>),
 }
+impl<'a> AExp<'a> {
+    pub fn free_vars(&self) -> HashSet<Variable> {
+        match self {
+            AExp::Variable(var) => [var.clone()].into(),
+            AExp::Number(_) => [].into(),
+            AExp::ArithmeticOp(lhs, _, rhs) => [lhs.free_vars(), rhs.free_vars()]
+                .iter()
+                .flatten()
+                .cloned()
+                .collect(),
+        }
+    }
+}
 
 /// represents a boolean expression as it may appear (by itself) in a block
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
@@ -31,6 +44,24 @@ pub enum BExp<'a> {
 
     // > < ==; operator is irrelevant
     RelationalOp(&'a AExp<'a>, &'a str, &'a AExp<'a>),
+}
+impl<'a> BExp<'a> {
+    pub fn free_vars(&self) -> HashSet<Variable> {
+        match self {
+            BExp::True | BExp::False => [].into(),
+            BExp::Not(inner) => inner.free_vars(),
+            BExp::BooleanOp(lhs, _, rhs) => [lhs.free_vars(), rhs.free_vars()]
+                .iter()
+                .flatten()
+                .cloned()
+                .collect(),
+            BExp::RelationalOp(lhs, _, rhs) => [lhs.free_vars(), rhs.free_vars()]
+                .iter()
+                .flatten()
+                .cloned()
+                .collect(),
+        }
+    }
 }
 
 impl<'a> Display for AExp<'a> {
