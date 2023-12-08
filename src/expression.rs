@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use std::{collections::HashSet, fmt::Display};
 
-pub type Label = i32; // label index
+pub type Label = usize; // label index
 pub type Variable = u8; // variable index
 pub type Value = i32; // an actual numeric value (only for displaying)
 

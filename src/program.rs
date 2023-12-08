@@ -11,7 +11,7 @@ use crate::{
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Program<'a> {
     pub contents: Statement<'a>,
-    pub len: i32,
+    pub len: usize,
 }
 
 impl<'a> Program<'a> {
