@@ -22,8 +22,21 @@ pub fn kill_lv(block: Block) -> HashSet<Variable> {
     }
 }
 
-pub fn lv_exit<'a>(program: &'a Program<'a>, label: Label) -> HashSet<Variable> {
-    assert!(program.at(label) != None);
+pub type LVExitAtLabel = HashSet<Variable>;
+pub type LVExit = Vec<HashSet<Variable>>;
+pub type LVEntryAtLabel = HashSet<Variable>;
+pub type LVEntry = Vec<HashSet<Variable>>;
+
+pub fn lv_exit<'a>(program: &'a Program<'a>, lv_entry: &LVEntry, label: Label) -> LVExitAtLabel {
+    assert!(
+        program.at(label) != None,
+        "Label '{}' does not exist in program",
+        label
+    );
+    assert!(
+        label < lv_entry.len(),
+        "Not enough entries in passed `lv_entry`"
+    );
 
     if program.final_labels().contains(&label) {
         HashSet::new()
@@ -31,18 +44,19 @@ pub fn lv_exit<'a>(program: &'a Program<'a>, label: Label) -> HashSet<Variable> 
         program
             .flow_r()
             .iter()
-            .map(|(l_prime, _)| lv_entry(program, *l_prime))
+            .map(|(l_prime, _)| lv_entry.get(*l_prime).unwrap())
             .flatten()
+            .cloned()
             .collect()
     }
 }
 
-pub fn lv_entry<'a>(program: &'a Program<'a>, label: Label) -> HashSet<Variable> {
+pub fn lv_entry<'a>(program: &'a Program<'a>, lv_exit: &LVExit, label: Label) -> LVEntryAtLabel {
     let block = program.at(label).unwrap();
 
-    lv_exit(program, label)
-        .sub(&kill(block.clone()))
-        .union(&gen(block))
+    lv_exit[label]
+        .sub(&kill_lv(block.clone()))
+        .union(&gen_lv(block))
         .cloned()
         .collect()
 }
