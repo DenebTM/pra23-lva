@@ -1,5 +1,8 @@
 #![allow(dead_code)]
-use crate::block::{Block, TestBlock};
+use crate::{
+    block::{Block, TestBlock},
+    expression::Label,
+};
 
 pub enum Statement<'a> {
     // Assignment(Assignment),
@@ -16,6 +19,20 @@ pub enum Statement<'a> {
 
     /// while \[b\] do S
     While(TestBlock<'a>, Box<Statement<'a>>),
+}
+
+impl<'a> Statement<'a> {
+    pub fn get_label(&self) -> Label {
+        match self {
+            Self::Atom(block) => block.get_label(),
+
+            Self::Composition(stmt1, _) => stmt1.get_label(),
+
+            Self::IfThenElse(test, _, _) => test.label,
+
+            Self::While(test, _) => test.label,
+        }
+    }
 }
 
 pub mod boxed {

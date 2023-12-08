@@ -10,6 +10,12 @@ pub struct Program<'a> {
 }
 
 impl<'a> Program<'a> {
+    /// creates a new program, labelling all its statements sequentially
+    pub fn new(contents: &'a Statement<'a>) -> Self {
+        let (contents, len) = Program::relabel(contents, 1);
+        Self { contents, len }
+    }
+
     /// relabels a statement and returns it together with a following label
     fn relabel(stmt: &'a Statement<'a>, start: Label) -> (Statement<'a>, Label) {
         match stmt {
@@ -68,9 +74,59 @@ impl<'a> Program<'a> {
         }
     }
 
-    /// creates a new program, labelling all its statements sequentially
-    pub fn new(contents: &'a mut Statement<'a>) -> Self {
-        let (contents, len) = Program::relabel(contents, 1);
-        Self { contents, len }
+    /// returns the block at a specified label in the program (internal use)
+    fn stmt_at(stmt: &'a Statement<'a>, label: Label) -> Option<Block<'a>> {
+        match stmt {
+            Statement::Atom(block) => {
+                if block.get_label() == label {
+                    return Some(block.clone());
+                }
+
+                None
+            }
+
+            Statement::Composition(stmt1, stmt2) => {
+                if let Some(block) = Program::stmt_at(stmt1, label) {
+                    return Some(block);
+                }
+                if let Some(block) = Program::stmt_at(stmt2, label) {
+                    return Some(block);
+                }
+
+                None
+            }
+
+            Statement::IfThenElse(test, stmt1, stmt2) => {
+                if test.label == label {
+                    return Some(Block::Test(test.clone()));
+                }
+
+                if let Some(block) = Program::stmt_at(stmt1, label) {
+                    return Some(block);
+                }
+                if let Some(block) = Program::stmt_at(stmt2, label) {
+                    return Some(block);
+                }
+
+                None
+            }
+
+            Statement::While(test, stmt1) => {
+                if test.label == label {
+                    return Some(Block::Test(test.clone()));
+                }
+
+                if let Some(block) = Program::stmt_at(stmt1, label) {
+                    return Some(block);
+                }
+
+                None
+            }
+        }
+    }
+
+    /// returns the block at a specified label in the program
+    pub fn at(&'a self, label: Label) -> Option<Block<'a>> {
+        Program::stmt_at(&self.contents, label)
     }
 }
