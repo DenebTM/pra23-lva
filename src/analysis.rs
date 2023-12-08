@@ -62,10 +62,6 @@ pub fn lv_exit_at<'a>(program: &'a Program<'a>, lv_entry: &LVEntry, label: Label
         "Label '{}' does not exist in program",
         label
     );
-    assert!(
-        label < lv_entry.len(),
-        "Not enough entries in passed `lv_entry`"
-    );
 
     if program.final_labels().contains(&label) {
         HashSet::new()
