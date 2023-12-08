@@ -17,8 +17,11 @@ pub struct Program<'a> {
 impl<'a> Program<'a> {
     /// creates a new program, labelling all its statements sequentially
     pub fn new(contents: Statement<'a>) -> Self {
-        let (contents, len) = Program::relabel(contents, 1);
-        Self { contents, len }
+        let (contents, next) = Program::relabel(contents, 1);
+        Self {
+            contents,
+            len: next - 1,
+        }
     }
 
     /// returns the block at a given label in the program
