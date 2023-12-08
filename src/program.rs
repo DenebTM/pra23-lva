@@ -16,7 +16,7 @@ pub struct Program<'a> {
 
 impl<'a> Program<'a> {
     /// creates a new program, labelling all its statements sequentially
-    pub fn new(contents: &'a Statement<'a>) -> Self {
+    pub fn new(contents: Statement<'a>) -> Self {
         let (contents, len) = Program::relabel(contents, 1);
         Self { contents, len }
     }
@@ -43,12 +43,12 @@ impl<'a> Program<'a> {
     }
 
     /// relabels a statement and returns it together with a following label (internal use)
-    fn relabel(stmt: &'a Statement<'a>, start: Label) -> (Statement<'a>, Label) {
+    fn relabel(stmt: Statement<'a>, start: Label) -> (Statement<'a>, Label) {
         match stmt {
             Statement::Atom(block) => (
                 Statement::Atom(match block {
                     Block::Assignment(AssignmentBlock { var, expr, .. }) => {
-                        Block::assignment(start.clone(), *var, expr.clone())
+                        Block::assignment(start.clone(), var, expr.clone())
                     }
                     Block::Skip(SkipBlock { .. }) => Block::skip(start.clone()),
                     Block::Test(TestBlock { expr, .. }) => Block::test(start.clone(), expr.clone()),
@@ -57,8 +57,8 @@ impl<'a> Program<'a> {
             ),
 
             Statement::Composition(stmt1, stmt2) => {
-                let (new_stmt1, stmt2_start) = Program::relabel(&stmt1, start);
-                let (new_stmt2, next) = Program::relabel(&stmt2, stmt2_start);
+                let (new_stmt1, stmt2_start) = Program::relabel(*stmt1, start);
+                let (new_stmt2, next) = Program::relabel(*stmt2, stmt2_start);
 
                 (
                     Statement::Composition(Box::new(new_stmt1), Box::new(new_stmt2)),
@@ -74,8 +74,8 @@ impl<'a> Program<'a> {
                     },
                     start + 1,
                 );
-                let (new_stmt1, stmt2_start) = Program::relabel(&stmt1, stmt1_start);
-                let (new_stmt2, next) = Program::relabel(&stmt2, stmt2_start);
+                let (new_stmt1, stmt2_start) = Program::relabel(*stmt1, stmt1_start);
+                let (new_stmt2, next) = Program::relabel(*stmt2, stmt2_start);
 
                 (
                     Statement::IfThenElse(new_test, Box::new(new_stmt1), Box::new(new_stmt2)),
@@ -91,7 +91,7 @@ impl<'a> Program<'a> {
                     },
                     start + 1,
                 );
-                let (new_stmt1, next) = Program::relabel(&stmt1, stmt1_start);
+                let (new_stmt1, next) = Program::relabel(*stmt1, stmt1_start);
 
                 (Statement::While(new_test, Box::new(new_stmt1)), next)
             }

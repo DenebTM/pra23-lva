@@ -7,11 +7,12 @@ mod statement;
 
 use block::TestBlock;
 use expression::{AExp::*, BExp::*};
-use functions::{blocks, flow_r};
 use statement::{boxed::*, Statement::Composition};
 
+use crate::program::Program;
+
 fn main() {
-    let stmt = Composition(
+    let program = Program::new(Composition(
         assignment(1, 2, Number(1)),
         while_(
             TestBlock {
@@ -23,11 +24,11 @@ fn main() {
                 assignment(4, 0, ArithmeticOp(&Variable(0), "-", &Number(1))),
             ),
         ),
-    );
+    ));
 
-    println!("{:?}", flow_r(&stmt));
+    println!("{:?}", program.flow_r());
 
-    for block in blocks(&stmt) {
+    for block in program.blocks() {
         print!("{}, ", block);
     }
     println!();
