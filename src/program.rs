@@ -8,6 +8,7 @@ use crate::{
 };
 
 /// encapsulates a sequence of `Statement`s starting at `1`
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Program<'a> {
     pub contents: Statement<'a>,
     pub len: i32,
@@ -25,16 +26,16 @@ impl<'a> Program<'a> {
         Program::stmt_at(&self.contents, label)
     }
 
-    pub fn init_label(self) -> Label {
+    pub fn init_label(&self) -> Label {
         1
     }
-    pub fn final_labels(self) -> HashSet<Label> {
+    pub fn final_labels(&self) -> HashSet<Label> {
         functions::final_labels(&self.contents)
     }
-    pub fn flow(self) -> HashSet<(Label, Label)> {
+    pub fn flow(&self) -> HashSet<(Label, Label)> {
         functions::flow(&self.contents)
     }
-    pub fn flow_r(self) -> HashSet<(Label, Label)> {
+    pub fn flow_r(&self) -> HashSet<(Label, Label)> {
         functions::flow_r(&self.contents)
     }
 

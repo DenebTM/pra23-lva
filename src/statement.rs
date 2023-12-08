@@ -4,6 +4,7 @@ use crate::{
     expression::Label,
 };
 
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Statement<'a> {
     // Assignment(Assignment),
     // Skip(Skip),
