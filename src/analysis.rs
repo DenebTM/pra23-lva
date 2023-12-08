@@ -22,6 +22,20 @@ pub fn kill_lv(block: Block) -> HashSet<Variable> {
     }
 }
 
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub struct LVAnalysis {
+    pub exit: LVExit,
+    pub entry: LVEntry,
+}
+impl LVAnalysis {
+    pub fn new() -> Self {
+        Self {
+            exit: LVExit::new(),
+            entry: LVEntry::new(),
+        }
+    }
+}
+
 pub type LVExitAtLabel = HashSet<Variable>;
 pub type LVExit = Vec<HashSet<Variable>>;
 pub type LVEntryAtLabel = HashSet<Variable>;
