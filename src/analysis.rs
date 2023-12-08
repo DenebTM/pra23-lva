@@ -6,7 +6,7 @@ use crate::{
     program::Program,
 };
 
-pub fn gen(block: Block) -> HashSet<Variable> {
+pub fn gen_lv(block: Block) -> HashSet<Variable> {
     match block {
         Block::Assignment(AssignmentBlock { expr, .. }) => expr.free_vars(),
         Block::Test(TestBlock { expr, .. }) => expr.free_vars(),
@@ -14,7 +14,7 @@ pub fn gen(block: Block) -> HashSet<Variable> {
     }
 }
 
-pub fn kill(block: Block) -> HashSet<Variable> {
+pub fn kill_lv(block: Block) -> HashSet<Variable> {
     match block {
         Block::Assignment(AssignmentBlock { var, .. }) => [var].into(),
         Block::Test(TestBlock { .. }) => [].into(),
