@@ -26,8 +26,6 @@ impl<'a> Program<'a> {
                     }
                     Block::Skip(SkipBlock { .. }) => Block::skip(start.clone()),
                     Block::Test(TestBlock { expr, .. }) => Block::test(start.clone(), expr.clone()),
-
-                    _ => todo!(),
                 }),
                 start + 1,
             ),
