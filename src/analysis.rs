@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, ops::Sub};
 
 use crate::{
     block::{AssignmentBlock, Block, TestBlock},
@@ -23,6 +23,8 @@ pub fn kill(block: Block) -> HashSet<Variable> {
 }
 
 pub fn lv_exit<'a>(program: &'a Program<'a>, label: Label) -> HashSet<Variable> {
+    assert!(program.at(label) != None);
+
     if program.final_labels().contains(&label) {
         HashSet::new()
     } else {
@@ -36,5 +38,11 @@ pub fn lv_exit<'a>(program: &'a Program<'a>, label: Label) -> HashSet<Variable> 
 }
 
 pub fn lv_entry<'a>(program: &'a Program<'a>, label: Label) -> HashSet<Variable> {
-    todo!()
+    let block = program.at(label).unwrap();
+
+    lv_exit(program, label)
+        .sub(&kill(block.clone()))
+        .union(&gen(block))
+        .cloned()
+        .collect()
 }

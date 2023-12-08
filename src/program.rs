@@ -38,6 +38,9 @@ impl<'a> Program<'a> {
     pub fn flow_r(&self) -> HashSet<(Label, Label)> {
         functions::flow_r(&self.contents)
     }
+    pub fn blocks(&self) -> HashSet<Block<'_>> {
+        functions::blocks(&self.contents)
+    }
 
     /// relabels a statement and returns it together with a following label (internal use)
     fn relabel(stmt: &'a Statement<'a>, start: Label) -> (Statement<'a>, Label) {
