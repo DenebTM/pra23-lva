@@ -1,9 +1,13 @@
+use std::collections::HashSet;
+
 use crate::{
     block::{AssignmentBlock, Block, SkipBlock, TestBlock},
     expression::Label,
+    functions,
     statement::Statement,
 };
 
+/// encapsulates a sequence of `Statement`s starting at `1`
 pub struct Program<'a> {
     pub contents: Statement<'a>,
     pub len: i32,
@@ -19,6 +23,19 @@ impl<'a> Program<'a> {
     /// returns the block at a specified label in the program
     pub fn at(&'a self, label: Label) -> Option<Block<'a>> {
         Program::stmt_at(&self.contents, label)
+    }
+
+    pub fn init_label(self) -> Label {
+        1
+    }
+    pub fn final_labels(self) -> HashSet<Label> {
+        functions::final_labels(&self.contents)
+    }
+    pub fn flow(self) -> HashSet<(Label, Label)> {
+        functions::flow(&self.contents)
+    }
+    pub fn flow_r(self) -> HashSet<(Label, Label)> {
+        functions::flow_r(&self.contents)
     }
 
     /// relabels a statement and returns it together with a following label (internal use)
