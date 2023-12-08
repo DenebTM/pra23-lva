@@ -1,4 +1,7 @@
-use std::{collections::HashSet, ops::Sub};
+use std::{
+    collections::{HashMap, HashSet},
+    ops::Sub,
+};
 
 use crate::{
     block::{AssignmentBlock, Block, TestBlock},
@@ -28,23 +31,27 @@ pub struct LVAnalysis {
     pub entry: LVEntry,
 }
 impl LVAnalysis {
-    pub fn new() -> Self {
+    pub fn new(label_count: usize) -> Self {
         Self {
-            exit: LVExit::new(),
-            entry: LVEntry::new(),
+            exit: (1..=label_count)
+                .map(|label| (label, HashSet::new()))
+                .collect(),
+            entry: (1..=label_count)
+                .map(|label| (label, HashSet::new()))
+                .collect(),
         }
     }
 }
 
 pub type LVExitAtLabel = HashSet<Variable>;
-pub type LVExit = Vec<HashSet<Variable>>;
+pub type LVExit = HashMap<Label, HashSet<Variable>>;
 pub type LVEntryAtLabel = HashSet<Variable>;
-pub type LVEntry = Vec<HashSet<Variable>>;
+pub type LVEntry = HashMap<Label, HashSet<Variable>>;
 
 /// return the LVExit' mapping based on LVEntry
 pub fn lv_exit<'a>(program: &'a Program<'a>, lv_entry: &LVEntry) -> LVExit {
     (1..=program.len)
-        .map(|label| lv_exit_at(program, lv_entry, label))
+        .map(|label| (label, lv_exit_at(program, lv_entry, label)))
         .collect()
 }
 
@@ -66,9 +73,8 @@ pub fn lv_exit_at<'a>(program: &'a Program<'a>, lv_entry: &LVEntry, label: Label
         program
             .flow_r()
             .iter()
-            .map(|(l_prime, _)| lv_entry.get(*l_prime).unwrap())
+            .map(|(l_prime, _)| lv_entry[l_prime].clone())
             .flatten()
-            .cloned()
             .collect()
     }
 }
@@ -76,7 +82,7 @@ pub fn lv_exit_at<'a>(program: &'a Program<'a>, lv_entry: &LVEntry, label: Label
 /// return the LVEntry' mapping based on LVExit
 pub fn lv_entry<'a>(program: &'a Program<'a>, lv_exit: &LVExit) -> LVExit {
     (1..=program.len)
-        .map(|label| lv_entry_at(program, lv_exit, label))
+        .map(|label| (label, lv_entry_at(program, lv_exit, label)))
         .collect()
 }
 
@@ -84,7 +90,7 @@ pub fn lv_entry<'a>(program: &'a Program<'a>, lv_exit: &LVExit) -> LVExit {
 pub fn lv_entry_at<'a>(program: &'a Program<'a>, lv_exit: &LVExit, label: Label) -> LVEntryAtLabel {
     let block = program.at(label).unwrap();
 
-    lv_exit[label]
+    lv_exit[&label]
         .sub(&kill_lv(block.clone()))
         .union(&gen_lv(block))
         .cloned()
