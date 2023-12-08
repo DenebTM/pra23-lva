@@ -21,7 +21,7 @@ impl<'a> Program<'a> {
         Self { contents, len }
     }
 
-    /// returns the block at a specified label in the program
+    /// returns the block at a given label in the program
     pub fn at(&'a self, label: Label) -> Option<Block<'a>> {
         Program::stmt_at(&self.contents, label)
     }
@@ -98,7 +98,7 @@ impl<'a> Program<'a> {
         }
     }
 
-    /// returns the block at a specified label in the program (internal use)
+    /// returns the block at a given label in the program (internal use)
     fn stmt_at(stmt: &'a Statement<'a>, label: Label) -> Option<Block<'a>> {
         match stmt {
             Statement::Atom(block) => {

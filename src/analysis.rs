@@ -27,7 +27,15 @@ pub type LVExit = Vec<HashSet<Variable>>;
 pub type LVEntryAtLabel = HashSet<Variable>;
 pub type LVEntry = Vec<HashSet<Variable>>;
 
-pub fn lv_exit<'a>(program: &'a Program<'a>, lv_entry: &LVEntry, label: Label) -> LVExitAtLabel {
+/// return the LVExit' mapping based on LVEntry
+pub fn lv_exit<'a>(program: &'a Program<'a>, lv_entry: &LVEntry) -> LVExit {
+    (1..=program.len)
+        .map(|label| lv_exit_at(program, lv_entry, label))
+        .collect()
+}
+
+/// return LVExit'(l) based on LVEntry
+pub fn lv_exit_at<'a>(program: &'a Program<'a>, lv_entry: &LVEntry, label: Label) -> LVExitAtLabel {
     assert!(
         program.at(label) != None,
         "Label '{}' does not exist in program",
@@ -51,7 +59,15 @@ pub fn lv_exit<'a>(program: &'a Program<'a>, lv_entry: &LVEntry, label: Label) -
     }
 }
 
-pub fn lv_entry<'a>(program: &'a Program<'a>, lv_exit: &LVExit, label: Label) -> LVEntryAtLabel {
+/// return the LVEntry' mapping based on LVExit
+pub fn lv_entry<'a>(program: &'a Program<'a>, lv_exit: &LVExit) -> LVExit {
+    (1..=program.len)
+        .map(|label| lv_entry_at(program, lv_exit, label))
+        .collect()
+}
+
+/// return LVEntry'(l) based on LVExit
+pub fn lv_entry_at<'a>(program: &'a Program<'a>, lv_exit: &LVExit, label: Label) -> LVEntryAtLabel {
     let block = program.at(label).unwrap();
 
     lv_exit[label]
