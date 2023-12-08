@@ -16,7 +16,12 @@ impl<'a> Program<'a> {
         Self { contents, len }
     }
 
-    /// relabels a statement and returns it together with a following label
+    /// returns the block at a specified label in the program
+    pub fn at(&'a self, label: Label) -> Option<Block<'a>> {
+        Program::stmt_at(&self.contents, label)
+    }
+
+    /// relabels a statement and returns it together with a following label (internal use)
     fn relabel(stmt: &'a Statement<'a>, start: Label) -> (Statement<'a>, Label) {
         match stmt {
             Statement::Atom(block) => (
@@ -121,10 +126,5 @@ impl<'a> Program<'a> {
                 None
             }
         }
-    }
-
-    /// returns the block at a specified label in the program
-    pub fn at(&'a self, label: Label) -> Option<Block<'a>> {
-        Program::stmt_at(&self.contents, label)
     }
 }
