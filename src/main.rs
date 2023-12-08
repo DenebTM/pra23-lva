@@ -2,6 +2,7 @@ mod analysis;
 mod block;
 mod expression;
 mod functions;
+mod program;
 mod statement;
 
 use block::TestBlock;
