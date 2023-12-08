@@ -1,3 +1,4 @@
+mod algorithm;
 mod analysis;
 mod block;
 mod expression;
@@ -32,4 +33,7 @@ fn main() {
         print!("{}, ", block);
     }
     println!();
+
+    let lva = algorithm::chaotic_iter::run(&program);
+    println!("{:#?}", lva);
 }
