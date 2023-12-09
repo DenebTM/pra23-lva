@@ -69,6 +69,7 @@ pub fn lv_exit_at<'a>(program: &'a Program<'a>, lv_entry: &LVEntry, label: Label
         program
             .flow_r()
             .iter()
+            .filter(|(_, l)| l == &label)
             .map(|(l_prime, _)| lv_entry[l_prime].clone())
             .flatten()
             .collect()
