@@ -59,6 +59,15 @@ pub mod boxed {
     ) -> Box<Statement<'a>> {
         Box::new(Statement::Composition(stmt1, stmt2))
     }
+
+    pub fn if_then_else<'a>(
+        test: TestBlock<'a>,
+        stmt1: Box<Statement<'a>>,
+        stmt2: Box<Statement<'a>>,
+    ) -> Box<Statement<'a>> {
+        Box::new(Statement::IfThenElse(test, stmt1, stmt2))
+    }
+
     pub fn while_<'a>(test: TestBlock<'a>, stmt1: Box<Statement<'a>>) -> Box<Statement<'a>> {
         Box::new(Statement::While(test, stmt1))
     }
