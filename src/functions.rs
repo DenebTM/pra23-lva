@@ -22,7 +22,7 @@ pub fn final_labels(stmt: &Statement) -> HashSet<Label> {
 
         Composition(_, stmt2) => final_labels(stmt2),
 
-        IfThenElse(_, _, stmt2) => final_labels(stmt2)
+        IfThenElse(_, stmt1, stmt2) => final_labels(stmt1)
             .union(&final_labels(stmt2))
             .cloned()
             .collect(),
