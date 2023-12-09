@@ -46,6 +46,10 @@ impl<'a> StatementBuilder<'a> {
         IfThenBuilder::new(test, self)
     }
 
+    pub fn while_(self, test: BExp<'a>) -> WhileBuilder<'a> {
+        WhileBuilder::new(test, self)
+    }
+
     pub fn end(self) -> Statement<'a> {
         self.contents
     }
@@ -103,7 +107,6 @@ impl<'a> IfThenBuilder<'a> {
         ElseBuilder::new(self)
     }
 }
-//
 
 pub struct ElseBuilder<'a> {
     if_builder: IfThenBuilder<'a>,
@@ -153,6 +156,64 @@ impl<'a> ElseBuilder<'a> {
                 },
                 Box::new(self.if_builder.then_builder.end()),
                 Box::new(self.else_builder.end()),
+            ),
+            next_label,
+        )
+    }
+}
+
+pub struct WhileBuilder<'a> {
+    test: BExp<'a>,
+    while_builder: StatementBuilder<'a>,
+    parent: StatementBuilder<'a>,
+}
+impl<'a> WhileBuilder<'a> {
+    fn new(test: BExp<'a>, super_builder: StatementBuilder<'a>) -> Self {
+        let mut inst = Self {
+            test,
+            while_builder: StatementBuilder::new(0),
+            parent: super_builder,
+        };
+        inst.while_builder.next_label = inst.parent.next_label;
+
+        inst
+    }
+
+    pub fn assignment(self, var: Variable, expr: AExp<'a>) -> Self {
+        Self {
+            test: self.test,
+            while_builder: self.while_builder.assignment(var, expr),
+            parent: self.parent,
+        }
+    }
+
+    pub fn skip(self) -> Self {
+        Self {
+            test: self.test,
+            while_builder: self.while_builder.skip(),
+            parent: self.parent,
+        }
+    }
+
+    pub fn test(self, expr: BExp<'a>) -> Self {
+        Self {
+            test: self.test,
+            while_builder: self.while_builder.test(expr),
+            parent: self.parent,
+        }
+    }
+
+    pub fn end(self) -> StatementBuilder<'a> {
+        let test_label = self.parent.next_label;
+        let next_label = self.while_builder.next_label;
+
+        self.parent.append(
+            Statement::While(
+                TestBlock {
+                    label: test_label,
+                    expr: self.test,
+                },
+                Box::new(self.while_builder.end()),
             ),
             next_label,
         )
