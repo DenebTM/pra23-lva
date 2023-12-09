@@ -101,7 +101,7 @@ impl<'a> Program<'a> {
                 (Statement::While(new_test, Box::new(new_stmt1)), next)
             }
 
-            Statement::Empty => panic!("Cannot relabel an empty statement"),
+            Statement::Empty => (Statement::Empty, start),
         }
     }
 
