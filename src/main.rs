@@ -41,7 +41,8 @@ fn main() {
     }
     println!();
 
-    let lva = algorithm::chaotic_iter::run(&program);
+    // let lva = algorithm::chaotic_iter::run(&program);
+    let lva = algorithm::mfp::run(&program);
 
     for label in 1..=program.len {
         println!(
