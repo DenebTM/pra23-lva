@@ -20,6 +20,9 @@ pub enum Statement<'a> {
 
     /// while \[b\] do S
     While(TestBlock<'a>, Box<Statement<'a>>),
+
+    // represents an empty program
+    Empty,
 }
 
 impl<'a> Statement<'a> {
@@ -32,6 +35,9 @@ impl<'a> Statement<'a> {
             Self::IfThenElse(test, _, _) => test.label,
 
             Self::While(test, _) => test.label,
+
+            // TODO: this isn't great
+            Self::Empty => panic!("An empty statement has no label"),
         }
     }
 }
