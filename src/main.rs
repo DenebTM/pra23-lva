@@ -42,5 +42,11 @@ fn main() {
     println!();
 
     let lva = algorithm::chaotic_iter::run(&program);
-    println!("{:#?}", lva);
+
+    for label in 1..=program.len {
+        println!(
+            "{label}: entry={:?}, exit={:?}",
+            lva.entry[&label], lva.exit[&label],
+        )
+    }
 }
