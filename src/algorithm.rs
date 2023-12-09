@@ -64,13 +64,9 @@ pub mod mfp {
 
             let (a, b) = (f_l_at(program, &ana, l), &ana[&l_p]);
             if !a.is_subset(&b) {
-                ana.insert(l_p, [a, b.clone()].iter().flatten().cloned().collect());
+                ana.insert(l_p, a.union(b).cloned().collect());
 
-                flow.iter()
-                    .filter(|(l_p_2, _)| &l_p == l_p_2)
-                    .for_each(|f| {
-                        work_list.insert(0, f.clone());
-                    });
+                work_list.extend(flow.iter().filter(|(l_p_2, _)| &l_p == l_p_2))
             }
         }
 
