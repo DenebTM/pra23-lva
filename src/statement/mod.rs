@@ -1,4 +1,7 @@
 #![allow(dead_code)]
+
+pub mod builder;
+
 use crate::{
     block::{Block, TestBlock},
     expression::Label,
