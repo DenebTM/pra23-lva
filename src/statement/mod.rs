@@ -2,6 +2,8 @@
 
 pub mod builder;
 
+use std::fmt::Display;
+
 use crate::{
     block::{Block, TestBlock},
     expression::Label,
@@ -52,6 +54,37 @@ impl<'a> Statement<'a> {
             }
             other_first => Statement::Composition(Box::new(other_first), Box::new(next)),
         }
+    }
+}
+
+impl<'a> Display for Statement<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Atom(block) => block.to_string(),
+
+                Self::Composition(stmt1, stmt2) => {
+                    format!("{}; {}", stmt1, stmt2)
+                }
+
+                Self::IfThenElse(test, stmt1, stmt2) => {
+                    format!(
+                        "(if {} then {} else {})",
+                        Block::Test(test.clone()),
+                        stmt1,
+                        stmt2
+                    )
+                }
+
+                Self::While(test, stmt1) => {
+                    format!("while ({}) do ({})", Block::Test(test.clone()), stmt1,)
+                }
+
+                Self::Empty => "".to_string(),
+            }
+        )
     }
 }
 

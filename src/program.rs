@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, fmt::Display};
 
 use crate::{
     block::{AssignmentBlock, Block, SkipBlock, TestBlock},
@@ -154,5 +154,11 @@ impl<'a> Program<'a> {
 
             Statement::Empty => None,
         }
+    }
+}
+
+impl<'a> Display for Program<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.contents.fmt(f)
     }
 }

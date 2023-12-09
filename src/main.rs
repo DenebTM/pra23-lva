@@ -25,11 +25,8 @@ fn main() {
             .end(),
     );
 
+    println!("{}", program);
     println!("{:?}", program.flow_r());
-
-    for block in program.blocks() {
-        print!("{}, ", block);
-    }
     println!();
 
     // let lva = algorithm::chaotic_iter::run(&program);

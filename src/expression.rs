@@ -96,8 +96,14 @@ impl<'a> Display for BExp<'a> {
                 BExp::BooleanOp(lhs, op, rhs) =>
                     [lhs.to_string(), op.to_string(), rhs.to_string()].concat(),
 
-                BExp::RelationalOp(lhs, op, rhs) =>
-                    [lhs.to_string(), op.to_string(), rhs.to_string()].concat(),
+                BExp::RelationalOp(lhs, op, rhs) => [
+                    lhs.to_string(),
+                    " ".to_string(),
+                    op.to_string(),
+                    " ".to_string(),
+                    rhs.to_string()
+                ]
+                .concat(),
             }
         )
     }
