@@ -43,6 +43,16 @@ impl<'a> Statement<'a> {
             Self::Empty => panic!("An empty statement has no label"),
         }
     }
+
+    pub fn append(self, next: Statement<'a>) -> Statement<'a> {
+        match self {
+            Statement::Empty => next,
+            Statement::Composition(stmt1, stmt2) => {
+                Statement::Composition(stmt1, Box::new(stmt2.append(next)))
+            }
+            other_first => Statement::Composition(Box::new(other_first), Box::new(next)),
+        }
+    }
 }
 
 pub mod boxed {
