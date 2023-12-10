@@ -7,7 +7,7 @@ pub type Value = i32; // an actual numeric value (only for displaying)
 
 /// represents an arithmetic expression as it may appear in an assignment to a variable
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
-pub enum AExp<'a> {
+pub enum AExp {
     // the index of a variable
     Variable(Variable),
 
@@ -15,9 +15,9 @@ pub enum AExp<'a> {
     Number(Value),
 
     // + - * /; operator is irrelevant
-    ArithmeticOp(&'a AExp<'a>, &'a str, &'a AExp<'a>),
+    ArithmeticOp(Box<AExp>, String, Box<AExp>),
 }
-impl<'a> AExp<'a> {
+impl AExp {
     pub fn free_vars(&self) -> HashSet<Variable> {
         match self {
             AExp::Variable(var) => [var.clone()].into(),
@@ -33,19 +33,19 @@ impl<'a> AExp<'a> {
 
 /// represents a boolean expression as it may appear (by itself) in a block
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
-pub enum BExp<'a> {
+pub enum BExp {
     True,
     False,
 
-    Not(Box<BExp<'a>>),
+    Not(Box<BExp>),
 
     // &&/||; operator is irrelevant
-    BooleanOp(&'a BExp<'a>, &'a str, &'a BExp<'a>),
+    BooleanOp(Box<BExp>, String, Box<BExp>),
 
     // > < ==; operator is irrelevant
-    RelationalOp(&'a AExp<'a>, &'a str, &'a AExp<'a>),
+    RelationalOp(Box<AExp>, String, Box<AExp>),
 }
-impl<'a> BExp<'a> {
+impl BExp {
     pub fn free_vars(&self) -> HashSet<Variable> {
         match self {
             BExp::True | BExp::False => [].into(),
@@ -64,7 +64,7 @@ impl<'a> BExp<'a> {
     }
 }
 
-impl<'a> Display for AExp<'a> {
+impl Display for AExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -81,7 +81,7 @@ impl<'a> Display for AExp<'a> {
     }
 }
 
-impl<'a> Display for BExp<'a> {
+impl Display for BExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

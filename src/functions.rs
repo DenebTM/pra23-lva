@@ -35,7 +35,7 @@ pub fn final_labels(stmt: &Statement) -> HashSet<Label> {
     }
 }
 
-pub fn blocks<'a>(stmt: &'a Statement) -> HashSet<Block<'a>> {
+pub fn blocks(stmt: &Statement) -> HashSet<Block> {
     use crate::statement::Statement::*;
     match stmt {
         // pad with empty sets so that all match arms have the return type [HashSet<(Label, Label)>; 3]

@@ -5,12 +5,12 @@ use crate::expression::{AExp, BExp, Label, Variable};
 
 /// represents a single statement in a program
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
-pub enum Block<'a> {
-    Assignment(AssignmentBlock<'a>),
+pub enum Block {
+    Assignment(AssignmentBlock),
     Skip(SkipBlock),
-    Test(TestBlock<'a>),
+    Test(TestBlock),
 }
-impl<'a> Block<'a> {
+impl Block {
     pub fn get_label(&self) -> Label {
         match self {
             Self::Assignment(b) => b.label,
@@ -19,22 +19,22 @@ impl<'a> Block<'a> {
         }
     }
 
-    pub fn assignment(label: Label, var: Variable, expr: AExp<'a>) -> Self {
+    pub fn assignment(label: Label, var: Variable, expr: AExp) -> Self {
         Self::Assignment(AssignmentBlock { label, var, expr })
     }
     pub fn skip(label: Label) -> Self {
         Self::Skip(SkipBlock { label })
     }
-    pub fn test(label: Label, expr: BExp<'a>) -> Self {
+    pub fn test(label: Label, expr: BExp) -> Self {
         Self::Test(TestBlock { label, expr })
     }
 }
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
-pub struct AssignmentBlock<'a> {
+pub struct AssignmentBlock {
     pub label: Label,
     pub var: Variable,
-    pub expr: AExp<'a>,
+    pub expr: AExp,
 }
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
@@ -43,12 +43,12 @@ pub struct SkipBlock {
 }
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
-pub struct TestBlock<'a> {
+pub struct TestBlock {
     pub label: Label,
-    pub expr: BExp<'a>,
+    pub expr: BExp,
 }
 
-impl<'a> Display for Block<'a> {
+impl Display for Block {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

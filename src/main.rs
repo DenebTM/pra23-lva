@@ -17,10 +17,21 @@ fn main() {
             .assignment(0, Number(2))
             .assignment(1, Number(4))
             .assignment(0, Number(1))
-            .begin_if(RelationalOp(&Variable(1), ">", &Variable(0)))
+            .begin_if(RelationalOp(
+                Box::new(Variable(1)),
+                ">".to_string(),
+                Box::new(Variable(0)),
+            ))
             .assignment(2, Variable(1))
             .else_()
-            .assignment(2, ArithmeticOp(&Variable(1), "*", &Variable(1)))
+            .assignment(
+                2,
+                ArithmeticOp(
+                    Box::new(Variable(1)),
+                    "*".to_string(),
+                    Box::new(Variable(1)),
+                ),
+            )
             .end_if()
             .assignment(0, Variable(2))
             .end(),

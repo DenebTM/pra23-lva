@@ -5,29 +5,29 @@ use crate::{
 };
 
 #[derive(Clone, Debug)]
-pub enum BuilderType<'a> {
+pub enum BuilderType {
     Plain,
 
     /// If(Test)
-    If(TestBlock<'a>),
+    If(TestBlock),
 
     /// Else(Test, If-Block)
-    Else(TestBlock<'a>, Statement<'a>),
+    Else(TestBlock, Statement),
 
     /// While(Test)
-    While(TestBlock<'a>),
+    While(TestBlock),
 }
 
 #[derive(Clone, Debug)]
-pub struct StatementBuilder<'a> {
+pub struct StatementBuilder {
     /// keep track of nesting
-    parent: Option<Box<StatementBuilder<'a>>>,
-    btype: BuilderType<'a>,
-    contents: Statement<'a>,
+    parent: Option<Box<StatementBuilder>>,
+    btype: BuilderType,
+    contents: Statement,
     next_label: Label,
 }
 
-impl<'a> StatementBuilder<'a> {
+impl StatementBuilder {
     pub fn new(first_label: Label) -> Self {
         Self {
             parent: None,
@@ -37,7 +37,7 @@ impl<'a> StatementBuilder<'a> {
         }
     }
 
-    pub fn assignment(self, var: Variable, expr: AExp<'a>) -> Self {
+    pub fn assignment(self, var: Variable, expr: AExp) -> Self {
         let new_stmt = Statement::Atom(Block::assignment(self.next_label, var, expr));
         Self {
             parent: self.parent,
@@ -57,7 +57,7 @@ impl<'a> StatementBuilder<'a> {
         }
     }
 
-    pub fn test(self, expr: BExp<'a>) -> Self {
+    pub fn test(self, expr: BExp) -> Self {
         let new_stmt = Statement::Atom(Block::test(self.next_label, expr));
         Self {
             parent: self.parent,
@@ -67,7 +67,7 @@ impl<'a> StatementBuilder<'a> {
         }
     }
 
-    pub fn begin_if(self, test: BExp<'a>) -> Self {
+    pub fn begin_if(self, test: BExp) -> Self {
         let next_label = self.next_label;
         Self {
             parent: Some(Box::new(self)),
@@ -106,7 +106,7 @@ impl<'a> StatementBuilder<'a> {
         }
     }
 
-    pub fn begin_while(self, test: BExp<'a>) -> Self {
+    pub fn begin_while(self, test: BExp) -> Self {
         let next_label = self.next_label;
         Self {
             parent: Some(Box::new(self)),
@@ -131,11 +131,11 @@ impl<'a> StatementBuilder<'a> {
         }
     }
 
-    pub fn end(self) -> Statement<'a> {
+    pub fn end(self) -> Statement {
         self.contents
     }
 
-    fn append(self, stmt: Statement<'a>, next_label: Label) -> Self {
+    fn append(self, stmt: Statement, next_label: Label) -> Self {
         Self {
             parent: self.parent,
             btype: self.btype,

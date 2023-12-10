@@ -4,7 +4,7 @@ pub mod chaotic_iter {
         program::Program,
     };
 
-    pub fn run<'a>(program: &'a Program<'a>) -> LVAnalysis {
+    pub fn run(program: &Program) -> LVAnalysis {
         let mut lva: LVAnalysis = LVAnalysis::new(program.len);
 
         loop {
@@ -35,7 +35,7 @@ pub mod mfp {
     type Lattice = HashSet<Variable>;
     type Analysis = LVExit;
 
-    pub fn run<'a>(program: &'a Program<'a>) -> LVAnalysis {
+    pub fn run(program: &Program) -> LVAnalysis {
         let bottom: Lattice = [].into();
         let ext_lab: HashSet<Label> = [program.init_label()].into();
         let ext_val: Lattice = [].into();

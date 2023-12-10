@@ -42,7 +42,7 @@ fn get_a_op(s: &str) -> IResult<&str, &str> {
     take_while_m_n(1, 1, is_a_op)(s)
 }
 
-fn aexp<'a>(s: &'a str) -> IResult<&str, AExp<'a>> {
+fn aexp(s: &str) -> IResult<&str, AExp> {
     let (s, lhs_str) = delimited(space, till_a_op, space)(s)?;
     let (_, lhs) = alt((var, val))(lhs_str)?;
 
@@ -53,7 +53,10 @@ fn aexp<'a>(s: &'a str) -> IResult<&str, AExp<'a>> {
     let (s, op) = get_a_op(s)?;
     let (s, rhs) = aexp(s)?;
 
-    Ok((s, AExp::ArithmeticOp(&lhs, op, &rhs)))
+    Ok((
+        s,
+        AExp::ArithmeticOp(Box::new(lhs), op.to_string(), Box::new(rhs)),
+    ))
 }
 
 fn assignment(s: &str) -> IResult<&str, AssignmentBlock> {

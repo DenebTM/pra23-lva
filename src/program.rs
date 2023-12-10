@@ -9,14 +9,14 @@ use crate::{
 
 /// encapsulates a sequence of `Statement`s starting at `1`
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub struct Program<'a> {
-    pub contents: Statement<'a>,
+pub struct Program {
+    pub contents: Statement,
     pub len: usize,
 }
 
-impl<'a> Program<'a> {
+impl Program {
     /// creates a new program, labelling all its statements sequentially
-    pub fn new(contents: Statement<'a>) -> Self {
+    pub fn new(contents: Statement) -> Self {
         let (contents, next) = Program::relabel(contents, 1);
         Self {
             contents,
@@ -25,7 +25,7 @@ impl<'a> Program<'a> {
     }
 
     /// returns the block at a given label in the program
-    pub fn at(&'a self, label: Label) -> Option<Block<'a>> {
+    pub fn at(&self, label: Label) -> Option<Block> {
         Program::stmt_at(&self.contents, label)
     }
 
@@ -41,12 +41,12 @@ impl<'a> Program<'a> {
     pub fn flow_r(&self) -> HashSet<(Label, Label)> {
         functions::flow_r(&self.contents)
     }
-    pub fn blocks(&self) -> HashSet<Block<'_>> {
+    pub fn blocks(&self) -> HashSet<Block> {
         functions::blocks(&self.contents)
     }
 
     /// relabels a statement and returns it together with a following label (internal use)
-    fn relabel(stmt: Statement<'a>, start: Label) -> (Statement<'a>, Label) {
+    fn relabel(stmt: Statement, start: Label) -> (Statement, Label) {
         match stmt {
             Statement::Atom(block) => (
                 Statement::Atom(match block {
@@ -104,7 +104,7 @@ impl<'a> Program<'a> {
     }
 
     /// returns the block at a given label in the program (internal use)
-    fn stmt_at(stmt: &'a Statement<'a>, label: Label) -> Option<Block<'a>> {
+    fn stmt_at(stmt: &Statement, label: Label) -> Option<Block> {
         match stmt {
             Statement::Atom(block) => {
                 if block.get_label() == label {
@@ -157,7 +157,7 @@ impl<'a> Program<'a> {
     }
 }
 
-impl<'a> Display for Program<'a> {
+impl Display for Program {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.contents.fmt(f)
     }
