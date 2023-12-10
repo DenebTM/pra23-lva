@@ -3,7 +3,7 @@ use std::str::FromStr;
 use nom::branch::alt;
 use nom::bytes::complete::{take, take_till, take_until, take_while1, take_while_m_n};
 use nom::character::complete::{alpha1, anychar, digit1, line_ending, one_of, space0};
-use nom::combinator::{map_res, verify};
+use nom::combinator::{consumed, map_res, verify};
 use nom::sequence::{delimited, separated_pair, terminated, Tuple};
 use nom::{bytes::complete::tag, character::complete::char};
 use nom::{AsChar, IResult};
@@ -60,10 +60,25 @@ fn aexp(s: &str) -> IResult<&str, AExp> {
 }
 
 fn assignment(s: &str) -> IResult<&str, AssignmentBlock> {
-    let (s, var) = terminated(alpha1, tag(":="))(s)?;
-    let (s, expr) = alpha1(s)?;
+    let (s, v_str) = terminated(alpha1, tag(":="))(s)?;
+    let (s, expr_str) = alpha1(s)?;
 
-    todo!()
+    let (_, v) = var(v_str)?;
+    let (_, expr) = aexp(expr_str)?;
+
+    let var = match v {
+        AExp::Variable(index) => index,
+        _ => unreachable!(),
+    };
+
+    Ok((
+        s,
+        AssignmentBlock {
+            var,
+            expr,
+            label: 0,
+        },
+    ))
 }
 
 fn statement(s: &str) -> IResult<&str, &str> {
