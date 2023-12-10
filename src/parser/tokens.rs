@@ -41,8 +41,8 @@ pub fn next_token(s: &str) -> IResult<&str, Token> {
         Ok((o, Token::Then))
     } else if let Ok((o, _)) = tag::<&str, &str, ()>("else")(s) {
         Ok((o, Token::Else))
-    } else if let Ok((_, _)) = tag::<&str, &str, ()>("while")(s) {
-        let (o, test_token) = next_token(s)?;
+    } else if let Ok((o, _)) = tag::<&str, &str, ()>("while")(s) {
+        let (o, test_token) = next_token(o)?;
         if let Token::BExp(test) = test_token {
             Ok((o, Token::While(test)))
         } else {
