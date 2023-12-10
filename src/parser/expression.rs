@@ -1,86 +1,18 @@
 use std::str::FromStr;
 
 use nom::branch::alt;
-use nom::bytes::complete::{
-    is_not, take, take_till, take_until, take_until1, take_while1, take_while_m_n,
-};
-use nom::character::complete::{alpha1, anychar, digit1, line_ending, one_of, space0};
-use nom::combinator::{consumed, fail, map_res, not, verify};
-use nom::sequence::{delimited, preceded, separated_pair, terminated, Tuple};
-use nom::{bytes::complete::tag, character::complete::char};
-use nom::{AsChar, IResult};
+use nom::bytes::complete::tag_no_case as tag;
+use nom::bytes::complete::{take, take_till};
+use nom::character::complete::digit1;
+use nom::combinator::{fail, map_res, verify};
+use nom::sequence::delimited;
+use nom::IResult;
 
-use crate::block::AssignmentBlock;
-use crate::expression::{AExp, BExp, Value, Variable};
-use crate::statement::Statement;
+use crate::expression::{AExp, BExp};
 
-fn surrounded_by_parens(s: &str) -> bool {
-    let mut nesting_level = 0;
+use super::helpers::{space, surrounded_by_parens};
 
-    for i in 0..s.len() {
-        if s.chars().nth(i).unwrap() == '(' {
-            nesting_level += 1;
-        } else if s.chars().nth(i).unwrap() == ')' {
-            nesting_level -= 1;
-        }
-        if (i == 0 || i != (s.len() - 1)) && nesting_level <= 0 {
-            return false;
-        }
-    }
-
-    true
-}
-
-fn space(s: &str) -> IResult<&str, &str> {
-    alt((space0, line_ending))(s)
-}
-
-fn delims(s: &str) -> IResult<&str, &str> {
-    alt((
-        //
-        tag(";"),
-        tag("then"),
-        tag("else"),
-        tag("do"),
-        tag("end"),
-    ))(s)
-}
-
-fn till_delims1(s: &str) -> IResult<&str, &str> {
-    let mut index = 0;
-
-    while index < s.len() && delims(&s[index..]).is_err() {
-        index += 1;
-    }
-
-    match index {
-        0 => fail(s),
-        _ => Ok((&s[index..], &s[..index])),
-    }
-}
-
-pub fn next_token(s: &str) -> IResult<&str, &str> {
-    let (s, _) = space(s)?;
-
-    let any = alt((
-        tag/* ::<&str, &str, ()> */("if"),
-        tag("then"),
-        tag("else"),
-        tag("while"),
-        tag("do"),
-        tag("end"),
-        till_delims1,
-    ))(s);
-
-    if any.is_ok() {
-        any
-    } else {
-        let (s, _) = tag(";")(s)?;
-        next_token(s)
-    }
-}
-
-fn var(s: &str) -> IResult<&str, AExp> {
+pub fn var(s: &str) -> IResult<&str, AExp> {
     let (s_2, var) = delimited(space, take(1usize), space)(s)?;
     let c = var.chars().nth(0).unwrap();
 
@@ -91,13 +23,13 @@ fn var(s: &str) -> IResult<&str, AExp> {
     Ok((s_2, AExp::Variable((c as u8) - ('x' as u8))))
 }
 
-fn nval(s: &str) -> IResult<&str, AExp> {
+pub fn nval(s: &str) -> IResult<&str, AExp> {
     let (s, val) = map_res(delimited(space, digit1, space), FromStr::from_str)(s)?;
 
     Ok((s, AExp::Number(val)))
 }
 
-fn bval(s: &str) -> IResult<&str, BExp> {
+pub fn bval(s: &str) -> IResult<&str, BExp> {
     let (s, val) = delimited(space, alt((tag("true"), tag("false"))), space)(s)?;
 
     Ok((
@@ -141,6 +73,11 @@ fn get_r_op(s: &str) -> IResult<&str, &str> {
     verify(take(1usize), |s: &str| s.chars().all(|c| is_r_op(c)))(s)
 }
 
+/**
+ * parse an arithmetic operation
+ *
+ * order of operations is not respected
+ */
 pub fn aexp(s: &str) -> IResult<&str, AExp> {
     let s = s.trim();
 
@@ -151,9 +88,9 @@ pub fn aexp(s: &str) -> IResult<&str, AExp> {
     }
 
     let (s, lhs_str) = delimited(space, till_a_op0, space)(s)?;
-    let (_, lhs) = alt((var, nval))(lhs_str)?;
+    let (s_2, lhs) = alt((var, nval))(lhs_str)?;
 
-    if s.len() == 0 {
+    if s.len() == 0 && s_2.len() == 0 {
         return Ok((s, lhs));
     }
 
@@ -166,6 +103,11 @@ pub fn aexp(s: &str) -> IResult<&str, AExp> {
     ))
 }
 
+/**
+ * parse a boolean operation
+ *
+ * order of operations is not respected
+ */
 pub fn bexp(s: &str) -> IResult<&str, BExp> {
     let s = s.trim();
 
@@ -221,27 +163,5 @@ pub fn bexp(s: &str) -> IResult<&str, BExp> {
     Ok((
         s,
         BExp::BooleanOp(Box::new(lhs), b_op.to_string(), Box::new(rhs)),
-    ))
-}
-
-pub fn assignment(s: &str) -> IResult<&str, AssignmentBlock> {
-    let (s, v_str) = terminated(alpha1, tag(":="))(s)?;
-    let (s, expr_str) = alpha1(s)?;
-
-    let (_, v) = var(v_str)?;
-    let (_, expr) = aexp(expr_str)?;
-
-    let var = match v {
-        AExp::Variable(index) => index,
-        _ => unreachable!(),
-    };
-
-    Ok((
-        s,
-        AssignmentBlock {
-            var,
-            expr,
-            label: 0,
-        },
     ))
 }

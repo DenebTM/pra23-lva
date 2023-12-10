@@ -4,13 +4,12 @@ mod block;
 mod expression;
 mod functions;
 mod parser;
-mod parser2;
 mod program;
 mod statement;
 
 use expression::{AExp::*, BExp::*};
 
-use crate::{parser2::parse, program::Program, statement::builder::StatementBuilder};
+use crate::{parser::parse, program::Program, statement::builder::StatementBuilder};
 
 fn main() {
     let program = Program::new(
@@ -48,5 +47,9 @@ fn main() {
         )
     }
 
-    parse("x := 2; y := 4; x := 1; if y > x then z := y else z := y*y end; x := z");
+    parse(
+        "
+    x := 2; y := 4; x := 1; if y > x then z := y else z := y*y endif;
+    x := z",
+    );
 }
