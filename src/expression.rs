@@ -43,7 +43,7 @@ pub enum BExp {
     BooleanOp(Box<BExp>, String, Box<BExp>),
 
     // > < ==; operator is irrelevant
-    RelationalOp(Box<AExp>, String, Box<AExp>),
+    RelationalOp(AExp, String, AExp),
 }
 impl BExp {
     pub fn free_vars(&self) -> HashSet<Variable> {

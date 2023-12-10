@@ -4,12 +4,13 @@ mod block;
 mod expression;
 mod functions;
 mod parser;
+mod parser2;
 mod program;
 mod statement;
 
 use expression::{AExp::*, BExp::*};
 
-use crate::{program::Program, statement::builder::StatementBuilder};
+use crate::{parser2::parse, program::Program, statement::builder::StatementBuilder};
 
 fn main() {
     let program = Program::new(
@@ -17,11 +18,7 @@ fn main() {
             .assignment(0, Number(2))
             .assignment(1, Number(4))
             .assignment(0, Number(1))
-            .begin_if(RelationalOp(
-                Box::new(Variable(1)),
-                ">".to_string(),
-                Box::new(Variable(0)),
-            ))
+            .begin_if(RelationalOp(Variable(1), ">".to_string(), Variable(0)))
             .assignment(2, Variable(1))
             .else_()
             .assignment(
@@ -50,4 +47,6 @@ fn main() {
             lva.entry[&label], lva.exit[&label],
         )
     }
+
+    parse("x := 2; y := 4; x := 1; if y > x then z := y else z := y*y end; x := z");
 }
