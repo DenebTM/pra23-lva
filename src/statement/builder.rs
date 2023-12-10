@@ -21,8 +21,8 @@ pub enum BuilderType {
 #[derive(Clone, Debug)]
 pub struct StatementBuilder {
     /// keep track of nesting
+    pub btype: BuilderType,
     parent: Option<Box<StatementBuilder>>,
-    btype: BuilderType,
     contents: Statement,
     next_label: Label,
 }
