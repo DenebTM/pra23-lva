@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 pub mod chaotic_iter {
     use crate::{
         analysis::{lv_entry, lv_exit, LVAnalysis},

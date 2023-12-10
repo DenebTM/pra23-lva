@@ -14,6 +14,7 @@ pub struct Program {
     pub len: usize,
 }
 
+#[allow(dead_code)]
 impl Program {
     /// creates a new program, labelling all its statements sequentially
     pub fn new(contents: Statement) -> Self {
