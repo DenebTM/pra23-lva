@@ -9,8 +9,7 @@ use crate::{
     statement::builder::StatementBuilder,
 };
 
-pub fn parse(input: &str) /*  -> Statement */
-{
+pub fn parse(input: &str) -> Program {
     let mut builder: StatementBuilder = StatementBuilder::new(1);
 
     let mut input = input;
@@ -45,6 +44,5 @@ pub fn parse(input: &str) /*  -> Statement */
         }
     }
 
-    let program = Program::new(builder.end());
-    println!("{program}")
+    Program::new(builder.end())
 }
