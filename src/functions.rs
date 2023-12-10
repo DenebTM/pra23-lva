@@ -7,7 +7,7 @@ pub fn init_label(stmt: &Statement) -> Label {
     match stmt {
         Atom(block) => block.get_label(),
 
-        Composition(stmt1, _) => init_label(stmt1),
+        Sequence(stmt1, _) => init_label(stmt1),
 
         IfThenElse(test, _, _) => test.label,
 
@@ -22,7 +22,7 @@ pub fn final_labels(stmt: &Statement) -> HashSet<Label> {
     match stmt {
         Atom(block) => [block.get_label()].into(),
 
-        Composition(_, stmt2) => final_labels(stmt2),
+        Sequence(_, stmt2) => final_labels(stmt2),
 
         IfThenElse(_, stmt1, stmt2) => final_labels(stmt1)
             .union(&final_labels(stmt2))
@@ -41,7 +41,7 @@ pub fn blocks<'a>(stmt: &'a Statement) -> HashSet<Block<'a>> {
         // pad with empty sets so that all match arms have the return type [HashSet<(Label, Label)>; 3]
         Atom(block) => [[block.clone()].into(), HashSet::new(), HashSet::new()],
 
-        Composition(stmt1, stmt2) => [blocks(stmt1), blocks(stmt2), HashSet::new()],
+        Sequence(stmt1, stmt2) => [blocks(stmt1), blocks(stmt2), HashSet::new()],
 
         IfThenElse(test, stmt1, stmt2) => [
             [Block::Test(test.clone())].into(),
@@ -69,7 +69,7 @@ pub fn flow(stmt: &Statement) -> HashSet<(Label, Label)> {
         // pad with empty sets so that all match arms have the return type [HashSet<(Label, Label)>; 3]
         Atom(_) | Empty => [HashSet::new(), HashSet::new(), HashSet::new()],
 
-        Composition(stmt1, stmt2) => [
+        Sequence(stmt1, stmt2) => [
             // flow(S1) U flow(S2) ...
             flow(stmt1),
             flow(stmt2),

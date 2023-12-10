@@ -59,12 +59,12 @@ impl<'a> Program<'a> {
                 start + 1,
             ),
 
-            Statement::Composition(stmt1, stmt2) => {
+            Statement::Sequence(stmt1, stmt2) => {
                 let (new_stmt1, stmt2_start) = Program::relabel(*stmt1, start);
                 let (new_stmt2, next) = Program::relabel(*stmt2, stmt2_start);
 
                 (
-                    Statement::Composition(Box::new(new_stmt1), Box::new(new_stmt2)),
+                    Statement::Sequence(Box::new(new_stmt1), Box::new(new_stmt2)),
                     next,
                 )
             }
@@ -114,7 +114,7 @@ impl<'a> Program<'a> {
                 None
             }
 
-            Statement::Composition(stmt1, stmt2) => {
+            Statement::Sequence(stmt1, stmt2) => {
                 if let Some(block) = Program::stmt_at(stmt1, label) {
                     return Some(block);
                 }

@@ -18,7 +18,7 @@ pub enum Statement<'a> {
     Atom(Block<'a>),
 
     /// S1; S2
-    Composition(Box<Statement<'a>>, Box<Statement<'a>>),
+    Sequence(Box<Statement<'a>>, Box<Statement<'a>>),
 
     /// if \[b\] then S1 else S2
     IfThenElse(TestBlock<'a>, Box<Statement<'a>>, Box<Statement<'a>>),
@@ -35,7 +35,7 @@ impl<'a> Statement<'a> {
         match self {
             Self::Atom(block) => block.get_label(),
 
-            Self::Composition(stmt1, _) => stmt1.get_label(),
+            Self::Sequence(stmt1, _) => stmt1.get_label(),
 
             Self::IfThenElse(test, _, _) => test.label,
 
@@ -49,10 +49,10 @@ impl<'a> Statement<'a> {
     pub fn append(self, next: Statement<'a>) -> Statement<'a> {
         match self {
             Statement::Empty => next,
-            Statement::Composition(stmt1, stmt2) => {
-                Statement::Composition(stmt1, Box::new(stmt2.append(next)))
+            Statement::Sequence(stmt1, stmt2) => {
+                Statement::Sequence(stmt1, Box::new(stmt2.append(next)))
             }
-            other_first => Statement::Composition(Box::new(other_first), Box::new(next)),
+            other_first => Statement::Sequence(Box::new(other_first), Box::new(next)),
         }
     }
 }
@@ -65,7 +65,7 @@ impl<'a> Display for Statement<'a> {
             match self {
                 Self::Atom(block) => block.to_string(),
 
-                Self::Composition(stmt1, stmt2) => {
+                Self::Sequence(stmt1, stmt2) => {
                     format!("{}; {}", stmt1, stmt2)
                 }
 
@@ -105,11 +105,11 @@ pub mod boxed {
         Box::new(Statement::Atom(Block::test(label, expr)))
     }
 
-    pub fn composition<'a>(
+    pub fn sequence<'a>(
         stmt1: Box<Statement<'a>>,
         stmt2: Box<Statement<'a>>,
     ) -> Box<Statement<'a>> {
-        Box::new(Statement::Composition(stmt1, stmt2))
+        Box::new(Statement::Sequence(stmt1, stmt2))
     }
 
     pub fn if_then_else<'a>(
