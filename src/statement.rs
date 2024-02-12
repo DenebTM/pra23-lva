@@ -37,7 +37,7 @@ impl Display for Statement {
 
                 Self::IfThenElse(test, stmt1, stmt2) => {
                     format!(
-                        "(if {} then {} else {})",
+                        "if {} then {} else {} endif",
                         Block::Test(test.clone()),
                         stmt1,
                         stmt2
@@ -45,7 +45,7 @@ impl Display for Statement {
                 }
 
                 Self::While(test, stmt1) => {
-                    format!("while ({}) do ({})", Block::Test(test.clone()), stmt1,)
+                    format!("while {} do {} enddo", Block::Test(test.clone()), stmt1,)
                 }
 
                 Self::Empty => "".to_string(),

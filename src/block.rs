@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 use std::fmt::Display;
 
+use fmtastic::Superscript;
+
 use crate::expression::{AExp, BExp, Label, Variable};
 
 /// represents a single statement in a program
@@ -52,7 +54,7 @@ impl Display for Block {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "[{}]^{}",
+            "[{}]{}",
             match self {
                 Block::Assignment(AssignmentBlock { var, expr, .. }) => {
                     [
@@ -67,7 +69,7 @@ impl Display for Block {
 
                 Block::Test(TestBlock { expr, .. }) => format!("{}", expr),
             },
-            self.get_label()
+            Superscript(self.get_label())
         )
     }
 }
