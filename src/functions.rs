@@ -14,8 +14,6 @@ pub fn init_label(stmt: &Statement) -> Label {
         IfThenElse(test, _, _) => test.label,
 
         While(test, _) => test.label,
-
-        Empty => panic!("An empty statement has no initial label"),
     }
 }
 
@@ -32,8 +30,6 @@ pub fn final_labels(stmt: &Statement) -> HashSet<Label> {
             .collect(),
 
         While(test, _) => [test.label].into(),
-
-        Empty => [].into(),
     }
 }
 
@@ -56,8 +52,6 @@ pub fn blocks(stmt: &Statement) -> HashSet<Block> {
             blocks(stmt1),
             HashSet::new(),
         ],
-
-        Empty => [HashSet::new(), HashSet::new(), HashSet::new()],
     }
     .iter()
     .flatten()
@@ -69,7 +63,7 @@ pub fn flow(stmt: &Statement) -> HashSet<(Label, Label)> {
     use crate::statement::Statement::*;
     match stmt {
         // pad with empty sets so that all match arms have the return type [HashSet<(Label, Label)>; 3]
-        Atom(_) | Empty => [HashSet::new(), HashSet::new(), HashSet::new()],
+        Atom(_) => [HashSet::new(), HashSet::new(), HashSet::new()],
 
         Sequence(stmt1, stmt2) => [
             // flow(S1) U flow(S2) ...

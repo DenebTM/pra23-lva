@@ -77,8 +77,6 @@ peg::parser!(grammar while_() for str {
             s:while() { s }
             --
             s:atom() { s }
-            --
-            _ { Statement::Empty }
         } { s }
 
         pub rule program() -> Program = s:stmt() _ { Program::new(s) }

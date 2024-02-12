@@ -99,8 +99,6 @@ impl Program {
 
                 (Statement::While(new_test, Box::new(new_stmt1)), next)
             }
-
-            Statement::Empty => (Statement::Empty, start),
         }
     }
 
@@ -152,8 +150,6 @@ impl Program {
 
                 None
             }
-
-            Statement::Empty => None,
         }
     }
 }

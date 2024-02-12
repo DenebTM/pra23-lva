@@ -18,9 +18,6 @@ pub enum Statement {
 
     /// while \[b\] do S
     While(TestBlock, Box<Statement>),
-
-    // represents an empty program
-    Empty,
 }
 
 impl Display for Statement {
@@ -47,8 +44,6 @@ impl Display for Statement {
                 Self::While(test, stmt1) => {
                     format!("while {} do {} enddo", Block::Test(test.clone()), stmt1,)
                 }
-
-                Self::Empty => "".to_string(),
             }
         )
     }
