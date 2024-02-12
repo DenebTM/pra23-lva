@@ -24,20 +24,6 @@ peg::parser!(grammar while_() for str {
         = !keyword() x:alpha() ws_or_eof() { x }
         / expected!("variable")
 
-    rule bexp() -> BExp
-        = t:precedence!{
-            x:(@) _ op:$("||")  _ y:@ { BExp::BooleanOp(Box::new(x), op.to_string(), Box::new(y)) }
-            --
-            x:(@) _ op:$("&&")  _ y:@ { BExp::BooleanOp(Box::new(x), op.to_string(), Box::new(y)) }
-            --
-            x:aexp() _ op:$("<=" / "==" / "!=" / ">=" / "<" / ">")  _ y:aexp() { BExp::RelationalOp(x, op.to_string(), y) }
-            --
-            "true" { BExp::True }
-            "false" { BExp::False }
-            --
-            "(" _ t:bexp() _ ")" { t }
-        }
-
     rule aexp() -> AExp
         = t:precedence!{
             x:(@) _ op:$("+" / "-") _ y:@ { AExp::ArithmeticOp(Box::new(x), op.to_string(), Box::new(y)) }
@@ -48,6 +34,21 @@ peg::parser!(grammar while_() for str {
             v:variable() { AExp::Variable(v) }
             --
             "(" _ t:aexp() _ ")" { t }
+        }
+
+    rule bexp() -> BExp
+        = t:precedence!{
+            x:(@) _ op:$("||") _ y:@ { BExp::BooleanOp(Box::new(x), op.to_string(), Box::new(y)) }
+            --
+            x:(@) _ op:$("&&") _ y:@ { BExp::BooleanOp(Box::new(x), op.to_string(), Box::new(y)) }
+            --
+            x:aexp() _ op:$("<=" / "==" / "!=" / ">=" / "<" / ">") _ y:aexp() { BExp::RelationalOp(x, op.to_string(), y) }
+            --
+            "true" { BExp::True }
+            "false" { BExp::False }
+            --
+            "!" _ e:@ { BExp::Not(Box::new(e)) }
+            "(" _ e:bexp() _ ")" { e }
         }
 
     rule if_then_else() -> Statement
