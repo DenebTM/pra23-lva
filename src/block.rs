@@ -56,7 +56,7 @@ impl Display for Block {
             match self {
                 Block::Assignment(AssignmentBlock { var, expr, .. }) => {
                     [
-                        &(('x' as u8 + var) as char).to_string(),
+                        var.to_string().as_str(),
                         " := ",
                         format!("{}", expr).as_str(),
                     ]

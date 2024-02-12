@@ -2,7 +2,7 @@
 use std::{collections::HashSet, fmt::Display};
 
 pub type Label = usize; // label index
-pub type Variable = u8; // variable index
+pub type Variable = char; // variable index
 pub type Value = i32; // an actual numeric value (only for displaying)
 
 /// represents an arithmetic expression as it may appear in an assignment to a variable
@@ -70,7 +70,7 @@ impl Display for AExp {
             f,
             "{}",
             match self {
-                AExp::Variable(var) => (('x' as u8 + var) as char).to_string(),
+                AExp::Variable(var) => var.to_string(),
 
                 AExp::Number(val) => val.to_string(),
 

@@ -9,14 +9,12 @@ mod statement;
 
 use std::{env, io};
 
-use crate::parser::parse;
-
 // needed by the example program
-use crate::{
-    expression::{AExp::*, BExp::*},
-    program::Program,
-    statement::builder::StatementBuilder,
-};
+// use crate::{
+//     expression::{AExp::*, BExp::*},
+//     program::Program,
+//     statement::builder::StatementBuilder,
+// };
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -37,29 +35,31 @@ fn main() {
         buf.clear();
     }
 
-    let program = parse(&input.trim());
+    input = input.trim_end().to_string();
+    if input.len() == 0 {
+        return;
+    }
+    input.push(' ');
+    let program = parser::parse(&input);
 
-    // uncomment this if for some reason the input doesn't work
-    // let program = new(
-    //     StatementBuilder::new(1)
-    //         .assignment(0, Number(2))
-    //         .assignment(1, Number(4))
-    //         .assignment(0, Number(1))
-    //         .begin_if(RelationalOp(Variable(1), ">".to_string(), Variable(0)))
-    //         .assignment(2, Variable(1))
-    //         .else_()
-    //         .assignment(
-    //             2,
-    //             ArithmeticOp(
-    //                 Box::new(Variable(1)),
-    //                 "*".to_string(),
-    //                 Box::new(Variable(1)),
-    //             ),
-    //         )
-    //         .end_if()
-    //         .assignment(0, Variable(2))
-    //         .end(),
-    // );
+    // parse error -> print location of the error
+    if let Err(err) = program {
+        println!(
+            "\nError parsing program at line {}, column {}:",
+            err.location.line, err.location.column
+        );
+
+        let line = input.split('\n').take(err.location.line).last().unwrap();
+        println!("{line}");
+        println!("{:>col$}", "^", col = err.location.column);
+
+        println!("Expected {}", err.expected);
+
+        return;
+    }
+
+    // parsed successfully -> proceed with analysis
+    let program = program.unwrap();
 
     println!("Program: {}", program);
     println!("Flow: {:?}", program.flow_r());
